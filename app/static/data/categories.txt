@@ -1,0 +1,16 @@
+movie	Movies
+actor	Movies
+director	Movies
+character	Movies
+tv_show	Movies
+sport	Sport
+player	Sport
+match	Sport
+book	Book
+author	Book
+song	Music
+singer	Music
+band	Music
+genre	Music
+generic_entity	GenericEntity
+pronoun	Pronoun

@@ -1,0 +1,12 @@
+selected_red {
+    color: red;
+    font-size: 200%;
+}
+
+div  #loading {
+    width: 350px;
+    height: 35px;
+    display: none;
+    background: url(/static/data/ajax-loader.gif) no-repeat;
+    cursor: wait;
+    }

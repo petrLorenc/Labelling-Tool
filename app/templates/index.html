@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+    <title>Validating tools</title>
+  </head>
+  <body onload="loadSentence({{ sentence_json }}, {{ categories }})">
+
+    <div class="container">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="#">Labeling data</a>
+        </nav>
+    </div>
+
+    <div class="container" id="categories">
+        <div class="row">
+            {% for item in categories %}
+                <div class="col">
+                    <div class="p-auto" value={{ item[0] }} style="color:black;" onclick="changeCategoryName({{ loop.index }});">{{ item[0] }} ({{ item[1] }})</div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="container mt-1">
+        <div class="row">
+            <div class="col-xs-6">
+                <ul class="list-group">
+                    {% for item in sentence_list %}
+                        {% if item[1] == '1' %}
+                            <li class="list-group-item text-danger" onclick="changeEntityType('{{ loop.index0 }}')">{{ item[0] }}</li>
+                        {% else %}
+                            <li class="list-group-item" onclick="changeEntityType('{{ loop.index0 }}')">{{ item[0] }}</li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="col-xs-6">
+                <ul class="list-group" id="category-group">
+                    {% for item in sentence_list %}
+                        {% if item[1] == '1' %}
+                            <li class="list-group-item text-danger">{{ item[2] }}</li>
+                        {% else %}
+                            <li class="list-group-item">{{ item[2] }}</li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div id="content" class="col-md-4 p-2 m-2">
+                <div class="btn-group" role="group" aria-label="Basic example">
+                  <button type="button" class="btn btn-success" onclick="saveData()" id="saveData">OK</button>
+                  <button type="button" class="btn btn-danger" onclick="location.href='{{ url_for('validate') }}';">Next</button>
+                  <button type="button" class="btn btn-danger" onclick="test_model();">Test Model</button>
+                  <button type="button" class="btn btn-warning" onclick="retrain_model();">Retrain Model</button>
+                </div>
+            </div>
+            <div id="loading">
+
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-success" id="success-alert">
+        <button type="button" class="close" data-dismiss="alert">x</button>
+        <strong id="saveDataMsg">Success! </strong>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <p>
+                <b>Batch progress: {{ batch_processed }} / {{ batch_size }}</b>
+            </p>
+        </div>
+    </div>
+
+     <div class="container">
+        <div class="row">
+            <p>
+                <b>Version 0.1</b>
+            </p>
+            <p>
+                <b>Proclamation:</b>
+                Buttons Next/Wrong/Skip are interchangeable (will be used in the next version of this tool) - now just reload the page.
+                Button OK will save the sentence.
+            </p>
+            <p>
+                <b>How to use it:</b>
+                After displaying the sentence you can choose the category and by clicking at the words you will assign the labels.
+                You should click from left to right (from up to down) to have proper B/I tags. If you click on already labeled word, the label will be deleted.
+                After clicking at OK button the labeled sentence will be saved. You can save even sentence even with no entity or also save one sentence multiple times (for example with different labels).
+                If you are fine with labeling, just click at one of the Next/Wrong/Skip button and next sentence will appear.
+            </p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <p>
+                <b id="score_text"></b>
+            </p>
+        </div>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="{{ url_for('static', filename='js/jquery-3.3.1.min.js') }}" type="text/javascript"></script>
+    <script src="{{ url_for('static', filename='js/popper.js') }}" type="text/javascript"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}" type="text/javascript"></script>
+
+    <script src="{{ url_for('static', filename='js/data_manipulation.js') }}" type="text/javascript"></script>
+  </body>
+</html>
