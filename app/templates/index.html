@@ -22,17 +22,28 @@
     <div class="container" id="categories">
         <div class="row">
             {% for item in categories %}
-                <div class="col">
-                    <div class="p-auto" value={{ item[0] }} style="color:black;" onclick="changeCategoryName({{ loop.index }});">{{ item[0] }} ({{ item[1] }})</div>
-                </div>
+                {% if loop.index % 6 != 1 %}
+                    <div class="col-sm-2">
+                        <!--suppress XmlDuplicatedId -->
+                        <div id="category{{ loop.index }}" style="color:black; font-size: 1em;" onclick="changeCategoryName({{ loop.index }});">{{ item[0] }} {{ item[1] }}</div>
+                    </div>
+                {% else %}
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <!--suppress XmlDuplicatedId -->
+                            <div id="category{{ loop.index }}"  style="color:black; font-size: 1em;" onclick="changeCategoryName({{ loop.index }});">{{ item[0] }} {{ item[1] }}</div>
+                        </div>
+                {% endif %}
             {% endfor %}
         </div>
     </div>
 
-    <div class="container mt-1">
+    <div class="container">
         <div class="row">
-            <div class="col-xs-6">
+            <div class="col">
                 <ul class="list-group">
+                    <h2>Sentence</h2>
                     {% for item in sentence_list %}
                         {% if item[1] == '1' %}
                             <li class="list-group-item text-danger" onclick="changeEntityType('{{ loop.index0 }}')">{{ item[0] }}</li>
@@ -43,8 +54,9 @@
                 </ul>
             </div>
 
-            <div class="col-xs-6">
+            <div class="col">
                 <ul class="list-group" id="category-group">
+                    <h2>Tag</h2>
                     {% for item in sentence_list %}
                         {% if item[1] == '1' %}
                             <li class="list-group-item text-danger">{{ item[2] }}</li>
@@ -59,11 +71,13 @@
 
     <div class="container">
         <div class="row justify-content-center">
-            <div id="content" class="col-md-4 p-2 m-2">
+            <div id="content" class="col-6 p-2 m-2">
                 <div class="btn-group" role="group" aria-label="Basic example">
                   <button type="button" class="btn btn-success" onclick="saveData()" id="saveData">OK</button>
                   <button type="button" class="btn btn-danger" onclick="location.href='{{ url_for('validate') }}';">Next</button>
-                  <button type="button" class="btn btn-danger" onclick="test_model();">Test Model</button>
+                  <button type="button" class="btn btn-warning" onclick="save_model()';">Save Model</button>
+                  <button type="button" class="btn btn-warning" onclick="load_model()';">Load Model</button>
+                  <button type="button" class="btn btn-warning" onclick="test_model();">Test Model</button>
                   <button type="button" class="btn btn-warning" onclick="retrain_model();">Retrain Model</button>
                 </div>
             </div>

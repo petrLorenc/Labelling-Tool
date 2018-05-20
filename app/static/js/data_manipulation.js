@@ -16,7 +16,7 @@ var chosenCategory = "";
 var previousIndexCategory = 0;
 
 function changeEntityType(i) {
-    let index1 = Number(i) + 1
+    let index1 = Number(i) + 2
 
     if (data[i][1] == "1"){
         data[i][1] = "0";
@@ -39,8 +39,8 @@ function changeEntityType(i) {
 
 function changeCategoryName(index) {
     chosenCategory = data_categories[index - 1][0];
-    $("#categories > div > div:nth-child("+ previousIndexCategory +") > div").removeClass("text-success");
-    $("#categories > div > div:nth-child("+ index +") > div").addClass("text-success");
+    $("#category"+ previousIndexCategory).removeClass("text-success");
+    $("#category"+ index).addClass("text-success");
 
     previousIndexCategory = index
 }
@@ -80,10 +80,8 @@ function retrain_model() {
         $("#loading").hide();
         $("#content").show();
         $("#score_text").text(data.msg)
-
         }
     });
-
 }
 
 function test_model() {
@@ -91,6 +89,7 @@ function test_model() {
     $("#content").hide();
 
     let scoreText = document.getElementById("score_text");
+    scoreText.innerHTML = ""
 
     function format_func(item, index){
         scoreText.innerHTML = scoreText.innerHTML + item + "<br>";
@@ -109,5 +108,30 @@ function test_model() {
 
         }
     });
+}
 
+function save_model() {
+    $.ajax({
+      type: "POST",
+      url: "/validate",
+      data: JSON.stringify(["save_model"]),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function(data) {
+            $("#success-alert").text(data.msg)
+        }
+    });
+}
+
+function load_model() {
+    $.ajax({
+      type: "POST",
+      url: "/validate",
+      data: JSON.stringify(["load_model"]),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function(data) {
+            $("#success-alert").text(data.msg)
+        }
+    });
 }

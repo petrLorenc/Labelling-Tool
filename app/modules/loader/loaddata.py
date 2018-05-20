@@ -3,15 +3,18 @@ import numpy as np
 
 class LoadData:
 
-    def __init__(self, path, path_to_marker="./app/static/data/marker.txt"):
+    def __init__(self, path, path_to_marker):
         # path to marker/number of already processed sentences
         # need to be in separate file because there is possibility to label one sentence several times (in a case of
         # not clear definition), so the number cannot be deduce afterwards
         self.path_to_marker = path_to_marker
         # number of already processed sentences
         self.marker = 0
-
         self.data = self.load_without_labels(path)
+        self.len = len(self.data)
+
+    def __len__(self):
+        return self.len
 
     def load_without_labels(self, path):
         """

@@ -15,10 +15,6 @@ class ModelInterface:
     Interface to work with a model
     Loading, saving a manipulating with him
     """
-
-    def __init__(self):
-        pass
-
     @staticmethod
     def load_model(model, optimizer, path):
         print("=> loading checkpoint '{}'".format(path))
@@ -26,7 +22,6 @@ class ModelInterface:
         model.load_state_dict(checkpoint['state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer'])
         print("=> loaded checkpoint '{}'".format(path))
-        return model, optimizer
 
     @staticmethod
     def save_model(model, optimizer, path):
@@ -45,6 +40,7 @@ class ModelInterface:
                      hidden_dim, embedding_dim=50):
         '''
         Create model and according the tag load saved one
+        :param embedding_dim:
         :param embedding_path:
         :param vocabulary: For adding OOV words
         :param classes:
@@ -78,16 +74,16 @@ class ModelInterface:
         if use_saved_if_found:
             my_file = Path("./app/static/data/models/actual_model.pth.tar")
             if my_file.is_file():
-                model, optimizer = ModelInterface.load_model(model, optimizer, path_to_saved_model)
+                ModelInterface.load_model(model, optimizer, path_to_saved_model)
 
         return model, loss_function, optimizer
 
     @staticmethod
-    def train_model(model, loss_function, optimizer, X_train, y_train, epochs=1, batch_size=32):
+    def train_model(model, loss_function, optimizer, X_train, y_train, epochs=100, batch_size=32):
         losses = []
-        accumulated_loss = 0
 
         for epoch in range(epochs):
+            accumulated_loss = 0
             for i in range(0, X_train.shape[0], batch_size):
                 # Step 1. Remember that Pytorch accumulates gradients.
                 # We need to clear them out before each instance
@@ -112,10 +108,9 @@ class ModelInterface:
                 optimizer.step()
 
             losses.append(accumulated_loss / float(X_train.shape[0]))
-            accumulated_loss = 0
             print ("Epoch end")
 
-        return accumulated_loss
+        return losses
 
     @staticmethod
     def get_confidence(output_of_model):
@@ -126,9 +121,11 @@ class ModelInterface:
                 total *= x
             return total
 
-        x = [np.max(x.numpy()) for x in F.softmax(output_of_model, dim=1)]
-        return np.power(multiply(x),
-                        1 / len(output_of_model.numpy()))  # nth root of multiplied probabilities -> NORMALIZATION
+        prediction_of_model = F.softmax(output_of_model, dim=1)
+        hard_prediction = [np.argmax(x.numpy()) for x in prediction_of_model]
+        prediction = [np.max(x.numpy()) for x in prediction_of_model]
+        return hard_prediction, np.power(multiply(prediction),
+                                         1.0 / len(prediction))  # nth root of multiplied probabilities -> NORMALIZATION
 
     @staticmethod
     def get_indexes_less_confident(model, test_data):
@@ -136,13 +133,19 @@ class ModelInterface:
         for index in range(len(test_data)):
             with torch.no_grad():
                 sentence_input = [x[0] for x in test_data[index]]
-                print (sentence_input)
                 inputs = model.prepare_sentence(sentence_input)
-                print (inputs)
                 tag_scores = model(inputs)
-                conf = ModelInterface.get_confidence(tag_scores)
-                confidences.append((index, conf))
+                prediction, conf = ModelInterface.get_confidence(tag_scores)
+                confidences.append((index, conf, model.return_class_from_target(prediction)))
         return sorted(confidences, key=lambda elem: elem[1], reverse=True)
+
+    @staticmethod
+    def get_sentence_based_on_model(sentence, sorted_examples):
+        new_sentence = []
+        for i, data in enumerate(sentence): #word, tag, label
+            new_sentence.append([data[0], "1" if sorted_examples[2][i] != "0" else "0", sorted_examples[2][i]])
+        return new_sentence
+
 
     @staticmethod
     def load_glove(path, embedding_dim=50):

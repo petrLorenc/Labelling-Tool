@@ -12,6 +12,8 @@ class LSTMnet(nn.Module):
     def __init__(self, tag_to_class, mapping, embedding_data, hidden_dim):
         super(LSTMnet, self).__init__()
         self.tag_to_class = tag_to_class
+        self.class_to_tag = {v: k for k, v in tag_to_class.items()}
+
         self.hidden_dim = hidden_dim
         self.mapping, self.embedding_data = mapping, embedding_data
 
@@ -42,6 +44,13 @@ class LSTMnet(nn.Module):
         else:
             idx = [self.tag_to_class[t] for t in tags]
         return torch.tensor(idx, dtype=torch.long)
+
+    def return_class_from_target(self, target, batch=False):
+        if batch:
+            classes = [self.class_to_tag[t] for example in target for t in example]
+        else:
+            classes = [self.class_to_tag[t] for t in target]
+        return classes
 
     def init_hidden(self):
         # Before we've done anything, we dont have any hidden state.
