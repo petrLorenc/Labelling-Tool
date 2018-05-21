@@ -25,14 +25,14 @@
                 {% if loop.index % 6 != 1 %}
                     <div class="col-sm-2">
                         <!--suppress XmlDuplicatedId -->
-                        <div id="category{{ loop.index }}" style="color:black; font-size: 1em;" onclick="changeCategoryName({{ loop.index }});">{{ item[0] }} {{ item[1] }}</div>
+                        <div id="category{{ loop.index }} cat" onclick="changeCategoryName({{ loop.index }});">{{ item[0] }} {{ item[1] }}</div>
                     </div>
                 {% else %}
                     </div>
                     <div class="row">
                         <div class="col-sm-2">
                             <!--suppress XmlDuplicatedId -->
-                            <div id="category{{ loop.index }}"  style="color:black; font-size: 1em;" onclick="changeCategoryName({{ loop.index }});">{{ item[0] }} {{ item[1] }}</div>
+                            <div id="category{{ loop.index }} cat" onclick="changeCategoryName({{ loop.index }});">{{ item[0] }} {{ item[1] }}</div>
                         </div>
                 {% endif %}
             {% endfor %}

@@ -3,10 +3,23 @@ selected_red {
     font-size: 200%;
 }
 
-div  #loading {
+div #loading {
     width: 350px;
     height: 35px;
     display: none;
     background: url(/static/data/ajax-loader.gif) no-repeat;
     cursor: wait;
-    }
+}
+
+.row:not(:last-child) {
+    border-bottom: 1px solid #ccc;
+}
+
+.col-sm-2:not(:last-child) {
+    border-right: 1px solid #ccc;
+}
+
+.cat {
+    color:black;
+    font-size: 1em;
+}
