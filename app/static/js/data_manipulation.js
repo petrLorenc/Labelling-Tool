@@ -9,6 +9,12 @@ $(document).ready (function(){
     });
  });
 
+function loadSentence(sentences, categories) {
+    data = sentences;
+    data_categories = categories;
+
+    changeCategoryName(1)
+}
 
 var data;
 var data_categories;
@@ -39,17 +45,10 @@ function changeEntityType(i) {
 
 function changeCategoryName(index) {
     chosenCategory = data_categories[index - 1][0];
-    $("#category"+ previousIndexCategory).removeClass("text-success");
-    $("#category"+ index).addClass("text-success");
+    $("#category"+ previousIndexCategory).removeClass("chosen_category");
+    $("#category"+ index).addClass("chosen_category");
 
     previousIndexCategory = index
-}
-
-function loadSentence(sentences, categories) {
-    data = sentences;
-    data_categories = categories;
-
-    changeCategoryName(1)
 }
 
 function saveData() {

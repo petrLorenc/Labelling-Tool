@@ -13,26 +13,41 @@
   </head>
   <body onload="loadSentence({{ sentence_json }}, {{ categories }})">
 
-    <div class="container">
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="#">Labeling data</a>
-        </nav>
+    <!--<div class="container">-->
+        <!--<nav class="navbar navbar-expand-lg navbar-light bg-light">-->
+            <!--<h1><a class="navbar-brand" href="#">Labeling data</a></h1>-->
+        <!--</nav>-->
+    <!--</div>-->
+
+    <!--<nav class="navbar navbar-inverse">-->
+      <!--<div class="container-fluid">-->
+        <!--<div class="navbar-header">-->
+          <!--<a class="navbar-brand" href="#">Labeling data</a>-->
+        <!--</div>-->
+      <!--</div>-->
+    <!--</nav>-->
+
+    <div class="jumbotron">
+      <div class="container text-center">
+        <h1>Labeling data</h1>
+        <p>Using active learning of model.</p>
+      </div>
     </div>
 
     <div class="container" id="categories">
         <div class="row">
             {% for item in categories %}
-                {% if loop.index % 6 != 1 %}
+                {% if loop.index % 6 != 1 or loop.index == 1 %}
                     <div class="col-sm-2">
                         <!--suppress XmlDuplicatedId -->
-                        <div id="category{{ loop.index }} cat" onclick="changeCategoryName({{ loop.index }});">{{ item[0] }} {{ item[1] }}</div>
+                        <div id="category{{ loop.index }}" class="category_button" onclick="changeCategoryName({{ loop.index }});">{{ item[0] }} {{ item[1] }}</div>
                     </div>
                 {% else %}
                     </div>
                     <div class="row">
                         <div class="col-sm-2">
                             <!--suppress XmlDuplicatedId -->
-                            <div id="category{{ loop.index }} cat" onclick="changeCategoryName({{ loop.index }});">{{ item[0] }} {{ item[1] }}</div>
+                            <div id="category{{ loop.index }}" class="category_button" onclick="changeCategoryName({{ loop.index }});">{{ item[0] }} {{ item[1] }}</div>
                         </div>
                 {% endif %}
             {% endfor %}
@@ -73,12 +88,12 @@
         <div class="row justify-content-center">
             <div id="content" class="col-6 p-2 m-2">
                 <div class="btn-group" role="group" aria-label="Basic example">
-                  <button type="button" class="btn btn-success" onclick="saveData()" id="saveData">OK</button>
-                  <button type="button" class="btn btn-danger" onclick="location.href='{{ url_for('validate') }}';">Next</button>
-                  <button type="button" class="btn btn-warning" onclick="save_model()';">Save Model</button>
-                  <button type="button" class="btn btn-warning" onclick="load_model()';">Load Model</button>
-                  <button type="button" class="btn btn-warning" onclick="test_model();">Test Model</button>
-                  <button type="button" class="btn btn-warning" onclick="retrain_model();">Retrain Model</button>
+                  <button type="button" class="btn model_btn btn-success" onclick="saveData()" id="saveData">Save</button>
+                  <button type="button" class="btn model_btn btn-danger" onclick="location.href='{{ url_for('validate') }}';">Next</button>
+                  <button type="button" class="btn model_btn btn-warning" onclick="save_model()';">Save Model</button>
+                  <button type="button" class="btn model_btn btn-warning" onclick="load_model()';">Load Model</button>
+                  <button type="button" class="btn model_btn btn-warning" onclick="test_model();">Test Model</button>
+                  <button type="button" class="btn model_btn btn-warning" onclick="retrain_model();">Retrain Model</button>
                 </div>
             </div>
             <div id="loading">
@@ -135,5 +150,9 @@
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}" type="text/javascript"></script>
 
     <script src="{{ url_for('static', filename='js/data_manipulation.js') }}" type="text/javascript"></script>
+
+    <footer class="container-fluid text-center">
+      <p>Ⓒ Petr Lorenc</p>
+    </footer>
   </body>
 </html>
