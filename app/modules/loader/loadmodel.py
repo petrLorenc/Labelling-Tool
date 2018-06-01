@@ -68,7 +68,11 @@ class ModelInterface:
                 index += 1
 
         model = LSTMnet(tag_to_class, mapping, np.array(embedding_data), hidden_dim=hidden_dim)
-        loss_function = nn.NLLLoss()
+        # This criterion combines nn.LogSoftmax() and nn.NLLLoss() in one single class.
+        # It is useful when training a classification problem with C classes.
+        # If provided, the optional argument weight should be a 1D Tensor assigning weight to each of the classes.
+        # This is particularly useful when you have an unbalanced training set.
+        loss_function = nn.CrossEntropyLoss()
         optimizer = optim.SGD(model.parameters(), lr=0.1)
 
         if use_saved_if_found:
@@ -79,11 +83,14 @@ class ModelInterface:
         return model, loss_function, optimizer
 
     @staticmethod
-    def train_model(model, loss_function, optimizer, X_train, y_train, epochs=100, batch_size=32):
+    def train_model(model, loss_function, optimizer, X_train, y_train, X_test, y_test, epochs=100, batch_size=32):
         losses = []
+        key_errors = 0
 
         for epoch in range(epochs):
-            accumulated_loss = 0
+            accumulated_loss_train = 0.0
+            correct = 0
+            total = 0
             for i in range(0, X_train.shape[0], batch_size):
                 # Step 1. Remember that Pytorch accumulates gradients.
                 # We need to clear them out before each instance
@@ -102,15 +109,47 @@ class ModelInterface:
                 # Step 4. Compute the loss, gradients, and update the parameters by
                 #  calling optimizer.step()
                 loss = loss_function(tag_scores, labels)
-                accumulated_loss += int(loss)
+                accumulated_loss_train += float(loss_function(tag_scores, labels))
 
                 loss.backward()
                 optimizer.step()
 
-            losses.append(accumulated_loss / float(X_train.shape[0]))
-            print ("Epoch end")
+                with torch.no_grad():
+                    outputs = model(sentences_in)
+                    _, predicted = torch.max(outputs, 1)
+                    total += labels.size(0)
+                    correct += (predicted == labels).sum().item()
 
-        return losses
+            accumulated_loss_train /= X_train.shape[0]
+
+            train_accuracy = 100 * (correct / float(total))
+
+            correct = 0
+            total = 0
+            sentences_in = model.prepare_sentence(X_test, batch=True)
+            labels = model.prepare_targets(y_test, batch=True)
+            with torch.no_grad():
+                outputs = model(sentences_in)
+                _, predicted = torch.max(outputs, 1)
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
+
+            print('Accuracy of the network on the 10000 test images: %d %%' % (100 * correct / total))
+
+            test_accuracy = 100 * (correct / float(total))
+
+            losses.append([epoch, accumulated_loss_train, train_accuracy, test_accuracy])
+            print("Epoch {} end".format(epoch))
+
+        print("There was {} errors".format(key_errors))
+        print(losses)
+
+        epochs = [x[0] for x in losses]
+        train_loss = [x[1] for x in losses]
+        train_acc = [x[2] for x in losses]
+        test_acc = [x[3] for x in losses]
+
+        return epochs, train_loss, train_acc, test_acc
 
     @staticmethod
     def get_confidence(output_of_model):
@@ -183,7 +222,7 @@ class ModelInterface:
             inputs = model.prepare_sentence(X_test, batch=True)
             tag_scores = model(inputs)
             tag_scores = [np.argmax(x.numpy()) for x in tag_scores]
-            report = sklearn.metrics.classification_report(model.prepare_targets(y_test, batch=True), tag_scores)
-            report = str([x.split() for x in report.split("\n")])
+            raw_report = sklearn.metrics.classification_report(model.prepare_targets(y_test, batch=True), tag_scores)
+            report = str([x.split() for x in raw_report.split("\n")])
             # return sklearn.metrics.accuracy_score(model.prepare_targets(y_test, batch=True), tag_scores)
-            return report
+            return raw_report, report

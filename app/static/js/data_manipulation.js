@@ -69,16 +69,22 @@ function retrain_model() {
     $("#loading").show();
     $("#content").hide();
 
+    var epochs = parseInt(prompt("Please enter number of epochs", "20"));
+
     $.ajax({
       type: "POST",
       url: "/validate",
-      data: JSON.stringify(["retrain"]),
+      data: JSON.stringify(["retrain", epochs]),
       contentType: "application/json; charset=utf-8",
       dataType: "json",
       success: function(data) {
         $("#loading").hide();
         $("#content").show();
-        $("#score_text").text(data.msg)
+
+        var ctx = document.getElementById("loss");
+        var ctx2 = document.getElementById("trainTest");
+        show_train_loss(ctx, data)
+        show_train_test(ctx2, data)
         }
     });
 }
@@ -104,7 +110,6 @@ function test_model() {
         $("#loading").hide();
         $("#content").show();
         Array.from(data.msg[0].split("], [")).forEach(format_func);
-
         }
     });
 }
@@ -133,4 +138,57 @@ function load_model() {
             $("#success-alert").text(data.msg)
         }
     });
+}
+
+function show_train_loss(ctx, data) {
+    ctx.height = 500
+    ctx.width = 500
+    var myChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: data.msg.epochs,
+            datasets: [{
+                data: data.msg.train_loss,
+                label: "Loss",
+                borderColor: "#3e95cd",
+                fill: false
+              }
+            ]
+          },
+          options: {
+            title: {
+              display: true,
+              text: 'Train loss'
+            }
+          }
+        });
+}
+
+function show_train_test(ctx, data) {
+    ctx.height = 500
+    ctx.width = 500
+    var myChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: data.msg.epochs,
+            datasets: [{
+                data: data.msg.train_acc,
+                label: "Train error",
+                borderColor: "#3e95cd",
+                fill: false
+              }, {
+                data: data.msg.test_acc,
+                label: "Test error",
+                borderColor: "#8e5ea2",
+                fill: false
+              }
+            ]
+          },
+          options: {
+            title: {
+              display: true,
+              text: 'Train vs Test error'
+            }
+          }
+        });
 }

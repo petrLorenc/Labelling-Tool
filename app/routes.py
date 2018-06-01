@@ -17,7 +17,7 @@ app.path_to_manually_labeled_data = "./app/static/data/manually_labeled.csv"
 app.path_to_manually_labeled_data_testset = "./app/static/data/manually_labeled_testset.csv"
 app.path_to_marker = "./app/static/data/marker.txt"
 
-app.train_epoch = 25
+app.train_epoch = 32
 app.batch_size = 32
 app.hidden_dim = 80
 
@@ -56,12 +56,14 @@ def validate():
         if "retrain" == jsdata[0]:
             print("Training.")
             X_train, _, y_train = LoadData.load_data_and_labels(app.path_to_manually_labeled_data)
-            losses = ModelInterface.train_model(model, loss_function, optimizer, X_train, y_train,
-                                                epochs=app.train_epoch, batch_size=app.batch_size)
-            jsdata = [str(losses) + " - based on " + str(len(X_train)) + " examples"]
+            X_test, _, y_test = LoadData.load_data_and_labels(app.path_to_manually_labeled_data_testset)
+            epochs, train_loss, train_acc, test_acc = ModelInterface.train_model(model, loss_function, optimizer, X_train[:1000], y_train[:1000], X_test, y_test,
+                                                epochs=jsdata[1] if jsdata[1] > 0 else app.train_epoch, batch_size=app.batch_size)
+            jsdata = {"epochs": epochs, "train_loss": train_loss, "train_acc": train_acc, "test_acc" : test_acc}
         elif "only_test" == jsdata[0]:
             X_test, _, y_test = LoadData.load_data_and_labels(app.path_to_manually_labeled_data_testset)
-            score = ModelInterface.test_model(model, X_test, y_test)
+            raw_report, score = ModelInterface.test_model(model, X_test, y_test)
+            print(raw_report)
             jsdata = [score]
         elif "save_model" == jsdata[0]:
             ModelInterface.save_model(model, optimizer, path=app.path_to_saved_model)
