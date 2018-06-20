@@ -4,22 +4,11 @@ from .modules.procesor.savingdata import SavingData
 from .modules.loader.loadmodel import ModelInterface
 
 from flask import render_template, request, redirect, g
-from flask import Response, stream_with_context
+from flask import Response, stream_with_context, jsonify
 import json
 
-app.path_to_embeddings = "./app/static/data/models/glove.6B.50d.txt"
-app.path_to_saved_model = "./app/static/data/models/actual_model.pth.tar"
-app.path_to_vocabulary = "./app/static/data/vocabulary.txt"
-app.path_to_categories = "./app/static/data/categories.txt"
-
-app.path_to_unlabeled_data = "./app/static/data/CAPC_tokenized.csv"
-app.path_to_manually_labeled_data = "./app/static/data/manually_labeled.csv"
-app.path_to_manually_labeled_data_testset = "./app/static/data/manually_labeled_testset.csv"
-app.path_to_marker = "./app/static/data/marker.txt"
-
-app.train_epoch = 32
-app.batch_size = 32
-app.hidden_dim = 80
+from .config import set_conf
+set_conf(app)
 
 categories = [category.split("\t") for category in open(app.path_to_categories, "r").readlines() if
               len(category) > 2]
@@ -33,13 +22,6 @@ model, loss_function, optimizer = ModelInterface.create_model(embedding_path=app
                                                               hidden_dim=app.hidden_dim)
 
 data_loader = LoadData(app.path_to_unlabeled_data, app.path_to_marker).generate_data()
-
-batch_size = 20
-app.process_in_batch = 20
-app.current_batch = []
-app.sorted_indexes = []
-app.current_sentence = []
-
 saving_data = SavingData(app.path_to_manually_labeled_data)
 
 
@@ -57,14 +39,14 @@ def validate():
             print("Training.")
             X_train, _, y_train = LoadData.load_data_and_labels(app.path_to_manually_labeled_data)
             X_test, _, y_test = LoadData.load_data_and_labels(app.path_to_manually_labeled_data_testset)
-            epochs, train_loss, train_acc, test_acc = ModelInterface.train_model(model, loss_function, optimizer, X_train[:1000], y_train[:1000], X_test, y_test,
+            epochs, train_loss, train_acc, test_acc = ModelInterface.train_model(model, loss_function, optimizer, X_train, y_train, X_test, y_test,
                                                 epochs=jsdata[1] if jsdata[1] > 0 else app.train_epoch, batch_size=app.batch_size)
             jsdata = {"epochs": epochs, "train_loss": train_loss, "train_acc": train_acc, "test_acc" : test_acc}
         elif "only_test" == jsdata[0]:
             X_test, _, y_test = LoadData.load_data_and_labels(app.path_to_manually_labeled_data_testset)
-            raw_report, score = ModelInterface.test_model(model, X_test, y_test)
-            print(raw_report)
-            jsdata = [score]
+            report = ModelInterface.test_model(model, X_test, y_test)
+            print(report)
+            jsdata = report
         elif "save_model" == jsdata[0]:
             ModelInterface.save_model(model, optimizer, path=app.path_to_saved_model)
             jsdata = ["Model saved"]
@@ -84,8 +66,8 @@ def validate():
 
         return resp
 
-    if app.process_in_batch == batch_size:
-        for _ in range(batch_size):
+    if app.process_in_batch == app.batch_size:
+        for _ in range(app.batch_size):
             app.current_batch.append(next(data_loader))
         # sort them
         app.sorted_examples = ModelInterface.get_indexes_less_confident(model, app.current_batch)
@@ -99,4 +81,4 @@ def validate():
     # print (app.current_sentence)
     return render_template('index.html', sentence_list=app.current_sentence,
                            sentence_json=json.dumps(app.current_sentence), categories=categories,
-                           batch_processed=app.process_in_batch, batch_size=batch_size)
+                           batch_processed=app.process_in_batch, batch_size=app.batch_size)

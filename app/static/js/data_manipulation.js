@@ -93,11 +93,32 @@ function test_model() {
     $("#loading").show();
     $("#content").hide();
 
-    let scoreText = document.getElementById("score_text");
-    scoreText.innerHTML = ""
+    function format_func(items){
+        var scoreText = document.getElementById("score_text");
+        var table = ""
+        table = "<table><tbody>";
 
-    function format_func(item, index){
-        scoreText.innerHTML = scoreText.innerHTML + item + "<br>";
+        table += "<td> class </td>" +
+                 "<td> precision </td>" +
+                 "<td> recall </td>" +
+                 "<td> f1_score </td>" +
+                 "<td> support </td>";
+
+        for (var i = 0; i < items.length; i++) {
+            table += "<tr>";
+
+            /* Must not forget the $ sign */
+            table += "<td>" + items[i].class.toString() + "</td>" +
+                     "<td>" + items[i].precision.toString() + "</td>" +
+                     "<td>" + items[i].recall.toString() + "</td>" +
+                     "<td>" + items[i].f1_score.toString() + "</td>" +
+                     "<td>" + items[i].support.toString() + "</td>";
+
+            table += '</tr>';
+        }
+
+        table += "</tbody></table>";
+        scoreText.innerHTML = table;
     }
 
     $.ajax({
@@ -109,7 +130,8 @@ function test_model() {
       success: function(data) {
         $("#loading").hide();
         $("#content").show();
-        Array.from(data.msg[0].split("], [")).forEach(format_func);
+        format_func(data.msg);
+        console.log(data.msg);
         }
     });
 }

@@ -187,7 +187,7 @@ class ModelInterface:
 
 
     @staticmethod
-    def load_glove(path, embedding_dim=50):
+    def load_glove(path):
         """
         creates a dictionary mapping words to vectors from a file in glove format.
         """
@@ -223,6 +223,19 @@ class ModelInterface:
             tag_scores = model(inputs)
             tag_scores = [np.argmax(x.numpy()) for x in tag_scores]
             raw_report = sklearn.metrics.classification_report(model.prepare_targets(y_test, batch=True), tag_scores)
-            report = str([x.split() for x in raw_report.split("\n")])
-            # return sklearn.metrics.accuracy_score(model.prepare_targets(y_test, batch=True), tag_scores)
-            return raw_report, report
+
+            report_data = []
+            lines = raw_report.split('\n')
+            for line in lines[2:-3]:
+                row = {}
+                print (line)
+                row_data = line.split('      ')
+                if len(row_data) > 0:
+                    row['class'] = model.return_class_from_target([int(row_data[1])])[0]
+                    row['precision'] = float(row_data[2])
+                    row['recall'] = float(row_data[3])
+                    row['f1_score'] = float(row_data[4])
+                    row['support'] = float(row_data[5])
+                    report_data.append(row)
+
+            return report_data
