@@ -4,7 +4,7 @@ from .modules.procesor.savingdata import SavingData
 from .modules.loader.loadmodel import ModelInterface
 
 from flask import render_template, request, redirect, g
-from flask import Response, stream_with_context, jsonify
+from flask import Response
 import json
 
 from .config import set_conf
@@ -69,13 +69,16 @@ def validate():
     if app.process_in_batch == app.batch_size:
         for _ in range(app.batch_size):
             app.current_batch.append(next(data_loader))
+
         # sort them
-        app.sorted_examples = ModelInterface.get_indexes_less_confident(model, app.current_batch)
+        # app.sorted_examples = ModelInterface.get_indexes_less_confident(model, app.current_batch)
         app.process_in_batch = 0
 
-    app.current_sentence = ModelInterface.get_sentence_based_on_model(
-                                                    app.current_batch[app.sorted_examples[app.process_in_batch][0]],
-                                                    app.sorted_examples[app.process_in_batch])
+    # app.current_sentence = ModelInterface.get_sentence_based_on_model(
+    #                                                 app.current_batch[app.sorted_examples[app.process_in_batch][0]],
+    #                                                 app.sorted_examples[app.process_in_batch])
+
+    app.current_sentence = app.current_batch[app.process_in_batch]
     app.process_in_batch += 1
 
     # print (app.current_sentence)

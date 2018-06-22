@@ -76,7 +76,7 @@ class ModelInterface:
         optimizer = optim.SGD(model.parameters(), lr=0.1)
 
         if use_saved_if_found:
-            my_file = Path("./app/static/data/models/actual_model.pth.tar")
+            my_file = Path(path_to_saved_model)
             if my_file.is_file():
                 ModelInterface.load_model(model, optimizer, path_to_saved_model)
 
@@ -134,7 +134,7 @@ class ModelInterface:
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
 
-            print('Accuracy of the network on the 10000 test images: %d %%' % (100 * correct / total))
+            print('Accuracy of the network on {} examples in the testset : {} %%'.format(len(X_test),100 * correct / total))
 
             test_accuracy = 100 * (correct / float(total))
 

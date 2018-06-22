@@ -9,25 +9,27 @@ class LoadData:
         # not clear definition), so the number cannot be deduce afterwards
         self.path_to_marker = path_to_marker
         # number of already processed sentences
-        self.marker = 0
-        self.data = self.load_without_labels(path)
+        self.marker = self.load_marker()
+
+        self.data = self.load_dataset(path)
         self.len = len(self.data)
 
     def __len__(self):
         return self.len
 
-    def load_without_labels(self, path):
-        """
-        Loaded data are saved into this object. Sentences are divided by the keyword END.
-        Example input file (newline around each example, tab separated):
+    def load_marker(self):
+        with open(self.path_to_marker, "r") as f:
+            return int(f.readline())
 
+    def load_dataset(self, path):
+        """
+        Example input file (newline around each example, tab separated):
         ...
 
         how	0	0
         you	0	0
         doing	0	0
-        END	0	0
-
+        .	0	0
         ...
 
         Marker file store value of already labelled sentences
@@ -38,19 +40,9 @@ class LoadData:
         with open(path) as f:
             data = "".join(f.readlines()).split("\n\n")
 
-        with open(self.path_to_marker, "r") as f:
-            self.marker = int(f.readline())
-
-        data = [word.split("\t") for line in data[self.marker:] for word in line.split("\n")]
         processed_data = []
-
-        sentence = []
-        for word in data:
-            if word[0] != "END":
-                sentence.append(word)
-            else:
-                processed_data.append(sentence)
-                sentence = []
+        for line in data[self.marker:]:
+            processed_data.append([word.split("\t") for word in line.split("\n")])
 
         return processed_data
 

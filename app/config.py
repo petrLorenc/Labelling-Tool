@@ -4,10 +4,10 @@ def set_conf(app):
     app.path_to_vocabulary = "./app/static/data/vocabulary.txt"
     app.path_to_categories = "./app/static/data/categories.txt"
 
-    app.path_to_unlabeled_data = "./app/static/data/CAPC_tokenized.csv"
+    app.path_to_unlabeled_data = "./app/static/data/CAPC_tokenized_temp.csv"
     app.path_to_manually_labeled_data = "./app/static/data/manually_labeled.csv"
     app.path_to_manually_labeled_data_testset = "./app/static/data/manually_labeled_testset.csv"
-    app.path_to_marker = "./app/static/data/marker.txt"
+    app.path_to_marker = "./app/static/data/marker_temp.txt"
 
     app.train_epoch = 32
     app.batch_size = 32

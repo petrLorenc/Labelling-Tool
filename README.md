@@ -38,3 +38,8 @@ Between each example is newline and each word is in this format:
 ## Workflow
 
 After labelling some data you can retrain your model (it does not save a model). Then you can test the model and choose to save new one on load the previous one. After saving there is no backup of old model (so by careful).
+
+## Todos
+
+Hard-written vocabulary
+Adding new category mean to delete previous model
