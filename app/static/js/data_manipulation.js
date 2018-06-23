@@ -2,12 +2,14 @@
 
 $(document).ready (function(){
     $("#success-alert").hide();
-    $("#saveData").click(function showAlert() {
-       $("#success-alert").fadeTo(2000, 500).slideUp(500, function(){
-       $("#success-alert").slideUp(500);
-        });
-    });
  });
+
+function showAlert(){
+    $("#success-alert").hide();
+    $("#success-alert").fadeTo(2000, 500).slideUp(500, function(){
+    $("#success-alert").slideUp(500);
+    });
+}
 
 function loadSentence(sentences, categories) {
     data = sentences;
@@ -59,7 +61,8 @@ function saveData() {
       contentType: "application/json; charset=utf-8",
       dataType: "json",
       success: function(data) {
-        $("#success-alert").text(data.msg)
+        $("#success-alert").text(data.msg);
+        showAlert();
         }
     });
 
@@ -83,8 +86,8 @@ function retrain_model() {
 
         var ctx = document.getElementById("loss");
         var ctx2 = document.getElementById("trainTest");
-        show_train_loss(ctx, data)
-        show_train_test(ctx2, data)
+        show_train_loss(ctx, data);
+        show_train_test(ctx2, data);
         }
     });
 }
@@ -137,27 +140,40 @@ function test_model() {
 }
 
 function save_model() {
+
+    var nameModel = prompt("Enter a name for a new model: (location: './app/static/data/models/')",
+                            "actual_model.pth.tar");
+
+    nameModel  = "./app/static/data/models/" + nameModel;
     $.ajax({
       type: "POST",
       url: "/validate",
-      data: JSON.stringify(["save_model"]),
+      data: JSON.stringify(["save_model", nameModel]),
       contentType: "application/json; charset=utf-8",
       dataType: "json",
       success: function(data) {
-            $("#success-alert").text(data.msg)
+            $("#success-alert").text(data.msg);
+            showAlert();
         }
     });
 }
 
 function load_model() {
+
+    var modelPath = prompt("Enter a name of new model: (location: './app/static/data/models/)'",
+                            "actual_model.pth.tar");
+
+    modelPath  = "./app/static/data/models/" + nameModel;
+
     $.ajax({
       type: "POST",
       url: "/validate",
-      data: JSON.stringify(["load_model"]),
+      data: JSON.stringify(["load_model", modelPath]),
       contentType: "application/json; charset=utf-8",
       dataType: "json",
       success: function(data) {
-            $("#success-alert").text(data.msg)
+            $("#success-alert").text(data.msg);
+            showAlert();
         }
     });
 }

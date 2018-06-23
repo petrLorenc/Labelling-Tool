@@ -51,11 +51,11 @@ div #loading {
     cursor: wait;
 }
 
-.row:not(:last-child) {
+.category.row:not(:last-child) {
     border-bottom: 1px solid #ccc;
 }
 
-.col-sm-2:not(:last-child) {
+.category.col-sm-2:not(:last-child) {
     border-right: 1px solid #ccc;
 }
 

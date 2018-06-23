@@ -35,17 +35,17 @@
     </div>
 
     <div class="container" id="categories">
-        <div class="row">
+        <div class="category row">
             {% for item in categories %}
                 {% if loop.index % 6 != 1 or loop.index == 1 %}
-                    <div class="col-sm-2">
+                    <div class="category col-sm-2">
                         <!--suppress XmlDuplicatedId -->
                         <div id="category{{ loop.index }}" class="category_button" onclick="changeCategoryName({{ loop.index }});">{{ item[0] }} {{ item[1] }}</div>
                     </div>
                 {% else %}
                     </div>
-                    <div class="row">
-                        <div class="col-sm-2">
+                    <div class="category row">
+                        <div class="category col-sm-2">
                             <!--suppress XmlDuplicatedId -->
                             <div id="category{{ loop.index }}" class="category_button" onclick="changeCategoryName({{ loop.index }});">{{ item[0] }} {{ item[1] }}</div>
                         </div>
@@ -118,19 +118,26 @@
      <div class="container">
         <div class="row">
             <p>
-                <b>Version 0.1</b>
+                <b>Version 0.2</b>
             </p>
+        </div>
+        <div class="row">
             <p>
                 <b>Proclamation:</b>
-                Buttons Next/Wrong/Skip are interchangeable (will be used in the next version of this tool) - now just reload the page.
-                Button OK will save the sentence.
+                <ul>
+                    <li>Button Save will save the sentence.</li>
+                    <li>Button Next will show next sentence.</li>
+                    <li>Button Save - save model</li>
+                    <li>Button Load - load new model</li>
+                    <li>Button Retrain - train model on new data (then you should save it)</li>
+                    <li>Button Test - test actual model</li>
+                </ul>
             </p>
             <p>
                 <b>How to use it:</b>
                 After displaying the sentence you can choose the category and by clicking at the words you will assign the labels.
                 You should click from left to right (from up to down) to have proper B/I tags. If you click on already labeled word, the label will be deleted.
                 After clicking at OK button the labeled sentence will be saved. You can save even sentence even with no entity or also save one sentence multiple times (for example with different labels).
-                If you are fine with labeling, just click at one of the Next/Wrong/Skip button and next sentence will appear.
             </p>
         </div>
     </div>
