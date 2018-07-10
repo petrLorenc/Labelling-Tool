@@ -41,5 +41,4 @@ After labelling some data you can retrain your model (it does not save a model).
 
 ## Todos
 
-Hard-written vocabulary
-Adding new category mean to delete previous model
+  * Hard-written OOV vocabulary

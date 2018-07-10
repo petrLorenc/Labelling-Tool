@@ -13,20 +13,6 @@
   </head>
   <body onload="loadSentence({{ sentence_json }}, {{ categories }})">
 
-    <!--<div class="container">-->
-        <!--<nav class="navbar navbar-expand-lg navbar-light bg-light">-->
-            <!--<h1><a class="navbar-brand" href="#">Labeling data</a></h1>-->
-        <!--</nav>-->
-    <!--</div>-->
-
-    <!--<nav class="navbar navbar-inverse">-->
-      <!--<div class="container-fluid">-->
-        <!--<div class="navbar-header">-->
-          <!--<a class="navbar-brand" href="#">Labeling data</a>-->
-        <!--</div>-->
-      <!--</div>-->
-    <!--</nav>-->
-
     <div class="jumbotron">
       <div class="container text-center">
         <h1>Labeling data</h1>
@@ -105,14 +91,6 @@
     <div class="alert alert-success" id="success-alert">
         <button type="button" class="close" data-dismiss="alert">x</button>
         <strong id="saveDataMsg">Success! </strong>
-    </div>
-
-    <div class="container">
-        <div class="row">
-            <p>
-                <b>Batch progress: {{ batch_processed }} / {{ batch_size }}</b>
-            </p>
-        </div>
     </div>
 
      <div class="container">

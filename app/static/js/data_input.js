@@ -22,11 +22,10 @@ function load_data() {
     $("#options").hide();
 
     var dataName = prompt("Enter a name of your data: (location: './app/static/data/)'",
-                            "manually_labeled.csv");
+                            "CAPC_tokenized.csv");
 
     dataName  = "./app/static/data/" + dataName;
 
-    var labels = document.getElementById('labels');
     var saved_model = document.getElementById('saved_model');
     var zero_marker = document.getElementById('marker');
 
@@ -34,7 +33,7 @@ function load_data() {
     $.ajax({
       type: "POST",
       url: "/",
-      data: JSON.stringify(["load_data", dataName, labels.checked, saved_model.checked, zero_marker.checked]),
+      data: JSON.stringify(["load_data", dataName, saved_model.checked, zero_marker.checked]),
       contentType: "application/json; charset=utf-8",
       dataType: "json",
       success: function(data) {

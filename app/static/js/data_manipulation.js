@@ -75,7 +75,7 @@ function retrain_model() {
     var epochs = parseInt(prompt("Please enter number of epochs", "20"));
 
     var dataName = prompt("Enter a name of your data: (location: './app/static/data/)'",
-                            "CAPC_tokenized_temp.csv");
+                            "CAPC_tokenized.csv");
 
     dataName  = "./app/static/data/" + dataName;
 

@@ -24,13 +24,11 @@ def index():
         status = 200
         if "load_data" == jsdata[0]:
             app.path_to_unlabeled_data = jsdata[1]
-            app.using_labels_from_unlabeled_data = bool(jsdata[2])
-            app.using_saved_model = bool(jsdata[3])
-            zero_marker = bool(jsdata[4])
+            app.using_saved_model = bool(jsdata[2])
+            zero_marker = bool(jsdata[3])
 
-            jsdata = ["Path to data '{}' set. (Using labels: {}, using saved model: {}). Page will be redirect.".format(
+            jsdata = ["Path to data '{}' set. (Using saved model: {}). Page will be redirect.".format(
                 app.path_to_unlabeled_data,
-                app.using_labels_from_unlabeled_data,
                 app.using_saved_model)]
         else:
             return render_template('data.html', categories=categories)
@@ -97,27 +95,13 @@ def validate():
 
         return resp
     try:
-        # if app.process_in_batch == app.batch_size:
-        #     app.current_batch = []
-        #     for _ in range(app.batch_size):
-        #         app.current_batch.append(next(app.data_loader))
-        #
-        #     # sort them
-        #     # app.sorted_examples = ModelInterface.get_indexes_less_confident(model, app.current_batch)
-        #     app.process_in_batch = 0
         app.current_sentence = next(app.data_loader)
     except StopIteration:
         return render_template('no_data.html')
 
-    app.current_sentence = ModelInterface.get_prediction_based_on_model(app.model, app.current_sentence)
+    if all([False if x[1] != "0" else True for x in app.current_sentence]):
+        app.current_sentence = ModelInterface.get_prediction_based_on_model(app.model, app.current_sentence)
 
-    # app.current_sentence = ModelInterface.get_sentence_based_on_model(
-    #                                                 app.current_batch[app.sorted_examples[app.process_in_batch][0]],
-    #                                                 app.sorted_examples[app.process_in_batch])
-
-    # app.process_in_batch += 1
-
-    # print (app.current_sentence)
     return render_template('index.html', sentence_list=app.current_sentence,
                            sentence_json=json.dumps(app.current_sentence), categories=categories,
                            batch_processed=app.process_in_batch, batch_size=app.batch_size)

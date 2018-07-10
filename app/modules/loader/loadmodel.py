@@ -55,7 +55,6 @@ class ModelInterface:
         # addind OOV words with random embeddings (maybe zeros would be more convenient)
         for word in vocabulary:
             if word not in mapping:
-                # print (word)
                 mapping[word] = len(mapping)  # last index
                 embedding_data.append(np.zeros(embedding_dim))
 
@@ -152,7 +151,7 @@ class ModelInterface:
         return epochs, train_loss, train_acc, test_acc
 
     @staticmethod
-    def get_confidence(output_of_model):
+    def get_prediction_and_confidence(output_of_model):
 
         def multiply(numbers):
             total = 1
@@ -166,35 +165,14 @@ class ModelInterface:
         return hard_prediction, np.power(multiply(prediction),
                                          1.0 / len(prediction))  # nth root of multiplied probabilities -> NORMALIZATION
 
-    # @staticmethod
-    # def get_indexes_less_confident(model, test_data):
-    #     confidences = []
-    #     for index in range(len(test_data)):
-    #         with torch.no_grad():
-    #             sentence_input = [x[0] for x in test_data[index]]
-    #             inputs = model.prepare_sentence(sentence_input)
-    #             tag_scores = model(inputs)
-    #             prediction, conf = ModelInterface.get_confidence(tag_scores)
-    #             confidences.append((index, conf, model.return_class_from_target(prediction)))
-    #     return sorted(confidences, key=lambda elem: elem[1], reverse=True)
-
-    # @staticmethod
-    # def get_sentence_based_on_model(sentence, sorted_examples):
-    #     new_sentence = []
-    #     for i, data in enumerate(sentence): #word, tag, label
-    #         new_sentence.append([data[0], "1" if sorted_examples[2][i] != "0" else "0", sorted_examples[2][i]])
-    #     return new_sentence
-
-
     @staticmethod
     def get_prediction_based_on_model(model, sentence):
         with torch.no_grad():
             sentence_input = [x[0] for x in sentence]
             inputs = model.prepare_sentence(sentence_input)
             outputs = model(inputs)
-            _, prediction2 = torch.max(outputs.data, 1)
-            prediction, _ = ModelInterface.get_confidence(outputs)
 
+            prediction, _ = ModelInterface.get_prediction_and_confidence(outputs)
             prediction = model.return_class_from_target(prediction)
 
         new_sentence = []
