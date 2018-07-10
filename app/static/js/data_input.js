@@ -4,11 +4,16 @@ $(document).ready (function(){
     $("#success-alert").hide();
  });
 
-function showAlertAndRedirect(redirect){
+function showAlertAndRedirect(redirect, time){
     $("#success-alert").hide();
-    $("#success-alert").fadeTo(2000, 500).slideUp(500, function(){
-        $("#success-alert").slideUp(500);
-        window.location.href = redirect;
+    $("#success-alert").fadeTo(2000, 1).slideUp(1000, function(){
+        setTimeout(function () {
+            $("#success-alert").slideDown(1000);
+            if (redirect) {
+                window.location.href = redirect;
+            }
+        }, time)
+
     });
 }
 
@@ -17,7 +22,7 @@ function load_data() {
     $("#options").hide();
 
     var dataName = prompt("Enter a name of your data: (location: './app/static/data/)'",
-                            "CAPC_tokenized_temp.csv");
+                            "manually_labeled.csv");
 
     dataName  = "./app/static/data/" + dataName;
 
@@ -33,12 +38,20 @@ function load_data() {
       contentType: "application/json; charset=utf-8",
       dataType: "json",
       success: function(data) {
-            $("#success-alert").text(data.msg);
+            $("#success-alert").text(data.msg, 2000);
             $("#loading").hide();
             $("#options").show();
 
             console.log(data);
             showAlertAndRedirect(data.redirect);
+        },
+      error: function(data) {
+            $("#success-alert").text(data.responseJSON.msg, 10000);
+            $("#loading").hide();
+            $("#options").show();
+
+            console.log(data);
+            showAlertAndRedirect(null);
         }
     });
 }

@@ -24,9 +24,9 @@ var chosenCategory = "";
 var previousIndexCategory = 0;
 
 function changeEntityType(i) {
-    let index1 = Number(i) + 2
+    var index1 = Number(i) + 2
 
-    if (data[i][1] == "1"){
+    if (data[i][1] === "1"){
         data[i][1] = "0";
         data[i][2] = "0";
         $("#category-group > li:nth-child("+ index1 +")").removeClass("text-danger");
@@ -74,10 +74,15 @@ function retrain_model() {
 
     var epochs = parseInt(prompt("Please enter number of epochs", "20"));
 
+    var dataName = prompt("Enter a name of your data: (location: './app/static/data/)'",
+                            "CAPC_tokenized_temp.csv");
+
+    dataName  = "./app/static/data/" + dataName;
+
     $.ajax({
       type: "POST",
       url: "/validate",
-      data: JSON.stringify(["retrain", epochs]),
+      data: JSON.stringify(["retrain", epochs, dataName]),
       contentType: "application/json; charset=utf-8",
       dataType: "json",
       success: function(data) {
@@ -141,14 +146,15 @@ function test_model() {
 
 function save_model() {
 
-    var nameModel = prompt("Enter a name for a new model: (location: './app/static/data/models/')",
+    var modelName = prompt("Enter a name for a new model: (location: './app/static/data/models/')",
                             "actual_model.pth.tar");
 
-    nameModel  = "./app/static/data/models/" + nameModel;
+    var modelPath  = "./app/static/data/models/" + modelName;
+
     $.ajax({
       type: "POST",
       url: "/validate",
-      data: JSON.stringify(["save_model", nameModel]),
+      data: JSON.stringify(["save_model", modelPath]),
       contentType: "application/json; charset=utf-8",
       dataType: "json",
       success: function(data) {
@@ -160,10 +166,10 @@ function save_model() {
 
 function load_model() {
 
-    var modelPath = prompt("Enter a name of new model: (location: './app/static/data/models/)'",
+    var modelName = prompt("Enter a name of new model: (location: './app/static/data/models/)'",
                             "actual_model.pth.tar");
 
-    modelPath  = "./app/static/data/models/" + nameModel;
+    var modelPath  = "./app/static/data/models/" + modelName;
 
     $.ajax({
       type: "POST",

@@ -16,8 +16,8 @@ def set_conf(app):
     app.batch_size = 32
     app.hidden_dim = 80
 
-    app.batch_size = 20
-    app.process_in_batch = 20
+    app.batch_size = 1
+    app.process_in_batch = app.batch_size
     app.current_batch = []
     app.sorted_indexes = []
     app.current_sentence = []
