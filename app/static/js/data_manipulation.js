@@ -217,12 +217,12 @@ function show_train_test(ctx, data) {
             labels: data.msg.epochs,
             datasets: [{
                 data: data.msg.train_acc,
-                label: "Train error",
+                label: "Train accuracy",
                 borderColor: "#3e95cd",
                 fill: false
               }, {
                 data: data.msg.test_acc,
-                label: "Test error",
+                label: "Test accuracy",
                 borderColor: "#8e5ea2",
                 fill: false
               }
@@ -231,7 +231,7 @@ function show_train_test(ctx, data) {
           options: {
             title: {
               display: true,
-              text: 'Train vs Test error'
+              text: 'Train vs Test accuracy'
             }
           }
         });

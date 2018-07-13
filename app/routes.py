@@ -38,6 +38,8 @@ def index():
         except Exception as e:
             jsdata = [str(e)]
             status = 404
+            import sys
+            sys.print_exception(e)
 
         data = {
             'redirect': '/validate',

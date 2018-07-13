@@ -37,7 +37,7 @@ class ModelInterface:
     def create_model(embedding_path,
                      vocabulary, classes,
                      use_saved_if_found, path_to_saved_model,
-                     hidden_dim, embedding_dim=50):
+                     hidden_dim, embedding_dim=50, use_gpu=True):
         '''
         Create model and according the tag load saved one
         :param embedding_dim:
@@ -66,7 +66,7 @@ class ModelInterface:
                 tag_to_class[category] = index
                 index += 1
 
-        model = LSTMnet(tag_to_class, mapping, np.array(embedding_data), hidden_dim=hidden_dim)
+        model = LSTMnet(tag_to_class, mapping, np.array(embedding_data), hidden_dim=hidden_dim, use_gpu=use_gpu)
         # This criterion combines nn.LogSoftmax() and nn.NLLLoss() in one single class.
         # It is useful when training a classification problem with C classes.
         # If provided, the optional argument weight should be a 1D Tensor assigning weight to each of the classes.
@@ -85,7 +85,6 @@ class ModelInterface:
     def train_model(model, loss_function, optimizer, X_train, y_train, X_test, y_test, epochs=100, batch_size=32):
         losses = []
         key_errors = 0
-
         for epoch in range(epochs):
             accumulated_loss_train = 0.0
             correct = 0
@@ -160,8 +159,8 @@ class ModelInterface:
             return total
 
         prediction_of_model = F.softmax(output_of_model, dim=1)
-        hard_prediction = [np.argmax(x.numpy()) for x in prediction_of_model]
-        prediction = [np.max(x.numpy()) for x in prediction_of_model]
+        hard_prediction = [np.argmax(x.cpu().numpy()) for x in prediction_of_model]
+        prediction = [np.max(x.cpu().numpy()) for x in prediction_of_model]
         return hard_prediction, np.power(multiply(prediction),
                                          1.0 / len(prediction))  # nth root of multiplied probabilities -> NORMALIZATION
 
@@ -215,7 +214,7 @@ class ModelInterface:
         with torch.no_grad():
             inputs = model.prepare_sentence(X_test, batch=True)
             tag_scores = model(inputs)
-            tag_scores = [np.argmax(x.numpy()) for x in tag_scores]
+            tag_scores = [np.argmax(x.cpu().numpy()) for x in tag_scores]
             raw_report = sklearn.metrics.classification_report(model.prepare_targets(y_test, batch=True), tag_scores)
 
             report_data = []

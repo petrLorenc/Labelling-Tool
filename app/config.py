@@ -15,6 +15,7 @@ def set_conf(app):
     app.batch_size = 32
     app.hidden_dim = 80
 
+    app.use_gpu = True
     app.batch_size = 1
     app.process_in_batch = app.batch_size
     app.current_batch = []
