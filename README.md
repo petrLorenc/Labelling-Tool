@@ -16,6 +16,8 @@ If you want to run in on your machine, download this repository and run:
     
 Then you can access website at your localhost address. For example [http://127.0.0.1:5000/ ](http://127.0.0.1:5000/)
 
+For own model see [abstract_model.py USAGE](app/modules/model/base/USAGE.md)
+
 ### Input format of data
 
     what	0	0

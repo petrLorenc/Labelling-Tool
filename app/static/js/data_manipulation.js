@@ -1,9 +1,5 @@
 "use strict"
 
-$(document).ready (function(){
-    $("#success-alert").hide();
- });
-
 function showAlert(){
     $("#success-alert").hide();
     $("#success-alert").fadeTo(2000, 500).slideUp(500, function(){
