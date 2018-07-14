@@ -1,6 +1,7 @@
 from app import app
-from .modules.loader.loaddata import LoadData
-from .modules.loader.loadmodel import ModelInterface
+from .modules.loader.load_data import LoadData
+from .modules.loader.model_utils import ModelUtils
+from .modules.model.lstm_net_pytorch import LSTMNetPytorch
 
 from flask import render_template, request
 from flask import Response
@@ -34,12 +35,12 @@ def index():
             return render_template('data.html', categories=categories)
 
         try:
+            app.model = LSTMNetPytorch()
             set_model(app, categories, vocabulary, zero_marker)
         except Exception as e:
-            jsdata = [str(e)]
-            status = 404
-            import sys
-            sys.print_exception(e)
+            # jsdata = [str(e)]
+            # status = 404
+            raise e
 
         data = {
             'redirect': '/validate',
@@ -64,25 +65,23 @@ def validate():
                                                                 if jsdata[2] != ""
                                                                 else app.path_to_manually_labeled_data)
             X_test, _, y_test = LoadData.load_data_and_labels(app.path_to_manually_labeled_data_testset)
-            epochs, train_loss, train_acc, test_acc = ModelInterface.train_model(app.model, app.loss_function,
-                                                                                 app.optimizer, X_train, y_train,
-                                                                                 X_test, y_test,
-                                                                                 epochs=jsdata[1] if jsdata[
-                                                                                                         1] > 0 else app.train_epoch,
-                                                                                 batch_size=app.batch_size)
+            epochs, train_loss, train_acc, test_acc = app.model.train(X_train, y_train, X_test, y_test,
+                                                                            epochs=jsdata[1] if jsdata[
+                                                                                            1] > 0 else app.train_epoch,
+                                                                            batch_size=app.batch_size)
             jsdata = {"epochs": epochs, "train_loss": train_loss, "train_acc": train_acc, "test_acc": test_acc}
         elif "only_test" == jsdata[0]:
             X_test, _, y_test = LoadData.load_data_and_labels(app.path_to_manually_labeled_data_testset)
-            report = ModelInterface.test_model(app.model, X_test, y_test)
+            report = app.model.test(X_test, y_test)
             print(report)
             jsdata = report
         elif "save_model" == jsdata[0]:
             app.path_to_saved_model = jsdata[1]
-            ModelInterface.save_model(app.model, app.optimizer, path=app.path_to_saved_model)
+            ModelUtils.save_model(app.model, app.optimizer, path=app.path_to_saved_model)
             jsdata = ["Model {} saved".format(app.path_to_saved_model)]
         elif "load_model" == jsdata[0]:
             app.path_to_saved_model = jsdata[1]
-            ModelInterface.load_model(app.model, app.optimizer, path=app.path_to_saved_model)
+            ModelUtils.load_model(app.model, app.optimizer, path=app.path_to_saved_model)
             jsdata = ["Model {} loaded".format(app.path_to_saved_model)]
         else:
             app.saving_data.add_item_to_file(jsdata)
@@ -102,7 +101,7 @@ def validate():
         return render_template('no_data.html')
 
     if all([False if x[1] != "0" else True for x in app.current_sentence]):
-        app.current_sentence = ModelInterface.get_prediction_based_on_model(app.model, app.current_sentence)
+        app.current_sentence = app.model.predict(app.current_sentence)
 
     return render_template('index.html', sentence_list=app.current_sentence,
                            sentence_json=json.dumps(app.current_sentence), categories=categories,

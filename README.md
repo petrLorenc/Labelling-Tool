@@ -1,5 +1,5 @@
 # Labelling Tool with a little bit of Active Learning
-Web based labelling tool with active learning. Model is defined in [LSTMNet.py](./app/modules/model/LSTMNet.py)
+Web based labelling tool with active learning. Model is defined in [LSTMNet.py](app/modules/model/lstm_net.py)
 
 The trained model is trying to predict labels for your examples and ask for human labelling for these which he is most uncertain. Loading batch size is set to 20.
 

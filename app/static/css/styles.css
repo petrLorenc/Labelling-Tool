@@ -44,10 +44,10 @@ selected_red {
 }
 
 div #loading {
-    width: 350px;
+    width: 100%;
     height: 35px;
     display: none;
-    background: url(/static/data/ajax-loader.gif) no-repeat;
+    background: url(/static/data/ajax-loader.gif);
     cursor: wait;
 }
 

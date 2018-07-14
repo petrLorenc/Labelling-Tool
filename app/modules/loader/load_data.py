@@ -18,8 +18,17 @@ class LoadData:
         return self.len
 
     def load_marker(self):
-        with open(self.path_to_marker, "r") as f:
-            return int(f.readline())
+        from pathlib import Path
+
+        my_file = Path(self.path_to_marker)
+        if my_file.is_file():
+            with open(self.path_to_marker, "r") as f:
+                return int(f.readline())
+        else:
+            with open(self.path_to_marker, "w") as f:
+                marker = "0"
+                f.write(marker)
+                return int(marker)
 
     def load_dataset(self, path):
         """

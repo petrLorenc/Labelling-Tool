@@ -1,9 +1,10 @@
 import torch
-from torch import nn, Tensor
+from torch import nn
 from torch.autograd import Variable
 import torch.nn.functional as F
 
 torch.backends.cudnn.enabled = False
+
 
 class LSTMnet(nn.Module):
     '''
