@@ -10,10 +10,7 @@ class AbstractModel(ABC):
         super().__init__()
 
     @abstractmethod
-    def load(self, app, classes, vocabulary, zero_marker) -> None:
-        pass
-
-    def prepare_data(self):
+    def load(self, app, classes, vocabulary, zero_marker: bool) -> None:
         pass
 
     @abstractmethod

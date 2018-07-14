@@ -56,9 +56,6 @@ class LSTMNetPytorch(AbstractModel):
         self.loss_function = loss_function
         self.optimizer = optimizer
 
-    def prepare_data(self):
-        pass
-
     def train(self, X_train, y_train, X_test, y_test, epochs=100, batch_size=32):
         losses = []
         key_errors = 0
@@ -127,9 +124,9 @@ class LSTMNetPytorch(AbstractModel):
 
         return epochs, train_loss, train_acc, test_acc
 
-    def predict(self, input):
+    def predict(self, X):
         with torch.no_grad():
-            sentence_input = [x[0] for x in input]
+            sentence_input = [x[0] for x in X]
             inputs = self.model.prepare_sentence(sentence_input)
             outputs = self.model(inputs)
 
@@ -139,7 +136,7 @@ class LSTMNetPytorch(AbstractModel):
             prediction = self.model.return_class_from_target(prediction)
 
         new_sentence = []
-        for i, data in enumerate(input):
+        for i, data in enumerate(X):
             new_sentence.append([data[0], "1" if prediction[i] != "0" else "0", prediction[i]])
         return new_sentence
 

@@ -14,4 +14,4 @@ band	Music
 genre	Music
 generic_entity	GenericEntity
 pronoun	Pronoun
-dalsi   Dalsi
+dalsi	Dalsi
