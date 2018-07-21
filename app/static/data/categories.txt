@@ -5,6 +5,7 @@ character	Movies
 tv_show	Movies
 sport	Sport
 player	Sport
+team	Sport
 match	Sport
 book	Book
 author	Book
@@ -14,4 +15,5 @@ band	Music
 genre	Music
 generic_entity	GenericEntity
 pronoun	Pronoun
-dalsi	Dalsi
+game	Games
+person	Person

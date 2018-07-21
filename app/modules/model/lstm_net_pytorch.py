@@ -162,3 +162,19 @@ class LSTMNetPytorch(AbstractModel):
                     report_data.append(row)
 
             return report_data
+
+    def save_file(self, path):
+        print("=> saving checkpoint '{}'".format(path))
+        state = {
+            'state_dict': self.model.state_dict(),
+            'optimizer': self.optimizer.state_dict(),
+        }
+        torch.save(state, path)
+        print("=> saved checkpoint '{}'".format(path))
+
+    def load_file(self, path):
+        print("=> loading checkpoint '{}'".format(path))
+        checkpoint = torch.load(path)
+        self.model.load_state_dict(checkpoint['state_dict'])
+        self.optimizer.load_state_dict(checkpoint['optimizer'])
+        print("=> loaded checkpoint '{}'".format(path))

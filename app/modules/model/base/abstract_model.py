@@ -24,3 +24,11 @@ class AbstractModel(ABC):
     @abstractmethod
     def test(self, X_test, y_test):
         pass
+
+    @abstractmethod
+    def save_file(self, path):
+        pass
+
+    @abstractmethod
+    def load_file(self, path):
+        pass
