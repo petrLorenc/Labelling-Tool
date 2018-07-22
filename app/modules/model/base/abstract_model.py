@@ -7,6 +7,11 @@ class AbstractModel(ABC):
         self.model = None
         self.optimizer = None
         self.loss_function = None
+        self.word2idx = None
+        self.idx2word = None
+        self.tag2idx = None
+        self.idx2tag = None
+        self.max_len = None
         super().__init__()
 
     @abstractmethod
@@ -14,7 +19,7 @@ class AbstractModel(ABC):
         pass
 
     @abstractmethod
-    def train(self, X_train, y_train, X_test, y_test, epochs=100, batch_size=32):
+    def train(self, X, y, epochs=100, batch_size=32):
         pass
 
     @abstractmethod

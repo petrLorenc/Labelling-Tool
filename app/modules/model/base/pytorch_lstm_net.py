@@ -6,13 +6,13 @@ import torch.nn.functional as F
 torch.backends.cudnn.enabled = False
 
 
-class LSTMnet(nn.Module):
+class PytorchLstmNetModel(nn.Module):
     '''
-        LSTM neural network (not bidirectional), last layer is projected with fully connected neural netowork
+        Pytorch LSTM neural network (not bidirectional), last layer is projected with fully connected neural netowork
     '''
 
     def __init__(self, tag_to_class, mapping, embedding_data, hidden_dim, use_gpu):
-        super(LSTMnet, self).__init__()
+        super(PytorchLstmNetModel, self).__init__()
 
         self.use_gpu = use_gpu and torch.cuda.is_available()
         if self.use_gpu:

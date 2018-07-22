@@ -18,6 +18,11 @@ Then you can access website at your localhost address. For example [http://127.0
 
 For own model see [abstract_model.py USAGE](app/modules/model/base/USAGE.md)
 
+  * Pytorch implementation: [lstm_net_pytorch](app/modules/model/lstm_net_pytorch.py)
+    * Legacy code, slow
+  * Keras implementation: [lstm_net_keras](app/modules/model/lstm_net_keras.py)
+    * Improved loading and creating model, more faster
+    
 ### Input format of data
 
     what	0	0
@@ -43,4 +48,4 @@ After labelling some data you can retrain your model (it does not save a model).
 
 ## Todos
 
-  * Hard-written OOV vocabulary
+  * Hard-written OOV vocabulary (Repair in Keras model)

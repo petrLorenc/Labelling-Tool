@@ -1,10 +1,11 @@
 from .base.abstract_model import AbstractModel
 from ..loader.model_utils import ModelUtils
-from .base.lstm_net import LSTMnet
+from .base.pytorch_lstm_net import PytorchLstmNetModel
 
 import numpy as np
 import sklearn.metrics
 from pathlib import Path
+from sklearn.model_selection import train_test_split
 
 import torch
 from torch import nn
@@ -12,7 +13,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 
-class LSTMNetPytorch(AbstractModel):
+class PytorchLstmNet(AbstractModel):
 
     def load(self, app, classes, vocabulary, zero_marker):
 
@@ -39,7 +40,7 @@ class LSTMNetPytorch(AbstractModel):
                 tag_to_class[category] = index
                 index += 1
 
-        model = LSTMnet(tag_to_class, mapping, np.array(embedding_data), hidden_dim=hidden_dim, use_gpu=use_gpu)
+        model = PytorchLstmNetModel(tag_to_class, mapping, np.array(embedding_data), hidden_dim=hidden_dim, use_gpu=use_gpu)
         # This criterion combines nn.LogSoftmax() and nn.NLLLoss() in one single class.
         # It is useful when training a classification problem with C classes.
         # If provided, the optional argument weight should be a 1D Tensor assigning weight to each of the classes.
@@ -50,13 +51,14 @@ class LSTMNetPytorch(AbstractModel):
         if use_saved_if_found:
             my_file = Path(path_to_saved_model)
             if my_file.is_file():
-                ModelUtils.load_model(model, optimizer, path_to_saved_model)
+                self.load_file(path_to_saved_model)
 
         self.model = model
         self.loss_function = loss_function
         self.optimizer = optimizer
 
-    def train(self, X_train, y_train, X_test, y_test, epochs=100, batch_size=32):
+    def train(self, X, y, epochs=100, batch_size=32):
+        X_train, y_train, X_test, y_test = train_test_split(X, y, test_size=0.1)
         losses = []
         key_errors = 0
         for epoch in range(epochs):

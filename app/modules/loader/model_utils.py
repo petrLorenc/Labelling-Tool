@@ -49,6 +49,22 @@ class ModelUtils:
             return mapping, glove_embeddings
 
     @staticmethod
+    def load_glove_keras(path):
+        """
+        creates a dictionary mapping words to vectors from a file in glove format.
+        """
+        embeddings_index = {}
+
+        with open(path, ) as f:
+            for line in f:
+                values = line.split()
+                word = values[0]
+                coefs = np.asarray(values[1:], dtype='float32')
+                embeddings_index[word] = coefs
+
+        return embeddings_index
+
+    @staticmethod
     def add_categories_for_model(names_of_categories):
         new_names_of_categories = ["0"]
         for category in names_of_categories:

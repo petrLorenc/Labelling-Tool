@@ -1,11 +1,13 @@
 from app import app
 from .modules.loader.load_data import LoadData
 from .modules.loader.model_utils import ModelUtils
-from .modules.model.lstm_net_pytorch import LSTMNetPytorch
+from .modules.model.lstm_net_pytorch import PytorchLstmNet
+from .modules.model.lstm_net_keras import KerasLstmNet
 
 from flask import render_template, request
 from flask import Response
 import json
+from sklearn.model_selection import train_test_split
 
 from .config import set_conf
 from .model import set_model
@@ -14,7 +16,7 @@ set_conf(app)
 
 categories = [category.split("\t") for category in open(app.path_to_categories, "r").readlines() if
               len(category) > 2]
-vocabulary = [word for word in open(app.path_to_vocabulary, "r").readlines() if len(word) >= 1]
+vocabulary = [word.strip() for word in open(app.path_to_vocabulary, "r").readlines() if len(word) >= 1]
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -35,7 +37,8 @@ def index():
             return render_template('data.html', categories=categories)
 
         try:
-            app.model = LSTMNetPytorch()
+            app.model = KerasLstmNet()
+            # app.model = PytorchLstmNet()
             set_model(app, categories, vocabulary, zero_marker)
         except Exception as e:
             # jsdata = [str(e)]
@@ -61,14 +64,10 @@ def validate():
         print(jsdata)
         if "retrain" == jsdata[0]:
             print("Training.")
-            X_train, _, y_train = LoadData.load_data_and_labels(jsdata[2]
-                                                                if jsdata[2] != ""
-                                                                else app.path_to_manually_labeled_data)
-            X_test, _, y_test = LoadData.load_data_and_labels(app.path_to_manually_labeled_data_testset)
-            epochs, train_loss, train_acc, test_acc = app.model.train(X_train, y_train, X_test, y_test,
-                                                                            epochs=jsdata[1] if jsdata[
-                                                                                            1] > 0 else app.train_epoch,
-                                                                            batch_size=app.batch_size)
+            X, _, y = LoadData.load_data_and_labels(jsdata[2] if jsdata[2] != "" else app.path_to_manually_labeled_data)
+            epochs, train_loss, train_acc, test_acc = app.model.train(X, y, epochs=jsdata[1] if jsdata[1] > 0
+                                                                                             else app.train_epoch,
+                                                                      batch_size=app.batch_size)
             jsdata = {"epochs": epochs, "train_loss": train_loss, "train_acc": train_acc, "test_acc": test_acc}
         elif "only_test" == jsdata[0]:
             X_test, _, y_test = LoadData.load_data_and_labels(app.path_to_manually_labeled_data_testset)
@@ -77,11 +76,11 @@ def validate():
             jsdata = report
         elif "save_model" == jsdata[0]:
             app.path_to_saved_model = jsdata[1]
-            ModelUtils.save_model(app.model, app.optimizer, path=app.path_to_saved_model)
+            app.model.save_file(path=app.path_to_saved_model)
             jsdata = ["Model {} saved".format(app.path_to_saved_model)]
         elif "load_model" == jsdata[0]:
             app.path_to_saved_model = jsdata[1]
-            ModelUtils.load_model(app.model, app.optimizer, path=app.path_to_saved_model)
+            app.model.load_file(path=app.path_to_saved_model)
             jsdata = ["Model {} loaded".format(app.path_to_saved_model)]
         else:
             app.saving_data.add_item_to_file(jsdata)
