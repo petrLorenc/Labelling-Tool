@@ -36,7 +36,7 @@ class KerasLstmNet(AbstractModel):
                          [word.strip() for words in X for word in words]))
         words.append("ENDPAD")
 
-        embedding_index = ModelUtils.load_glove_keras(embedding_path)
+        embedding_index = ModelUtils.load_glove(embedding_path)
 
         embedding_matrix = np.zeros((len(words) + 1, embedding_dim))
         for i, word in enumerate(words):

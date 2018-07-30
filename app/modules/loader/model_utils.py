@@ -5,30 +5,11 @@ import torch
 
 class ModelUtils:
     """
-    Interface to work with a model
-    Loading, saving a manipulating with him
+    Group of function to help work with embeddings and models.
     """
-    @staticmethod
-    def load_model(model, optimizer, path):
-        print("=> loading checkpoint '{}'".format(path))
-        checkpoint = torch.load(path)
-        model.load_state_dict(checkpoint['state_dict'])
-        optimizer.load_state_dict(checkpoint['optimizer'])
-        print("=> loaded checkpoint '{}'".format(path))
 
     @staticmethod
-    def save_model(model, optimizer, path):
-        print("=> saving checkpoint '{}'".format(path))
-        state = {
-            'state_dict': model.state_dict(),
-            'optimizer' : optimizer.state_dict(),
-        }
-        torch.save(state, path)
-        print("=> saved checkpoint '{}'".format(path))
-
-
-    @staticmethod
-    def load_glove(path):
+    def load_glove_mapping(path):
         """
         creates a dictionary mapping words to vectors from a file in glove format.
         """
@@ -49,9 +30,9 @@ class ModelUtils:
             return mapping, glove_embeddings
 
     @staticmethod
-    def load_glove_keras(path):
+    def load_glove(path):
         """
-        creates a dictionary mapping words to vectors from a file in glove format.
+        creates a dictionary of words with theirs vectors from a file in glove format.
         """
         embeddings_index = {}
 
@@ -66,6 +47,11 @@ class ModelUtils:
 
     @staticmethod
     def add_categories_for_model(names_of_categories):
+        """
+        For returning corresponding tags for categories
+        :param names_of_categories: List of categories
+        :return: New list of categories with B/I prefix
+        """
         new_names_of_categories = ["0"]
         for category in names_of_categories:
             new_names_of_categories.append("B-" + category[0])

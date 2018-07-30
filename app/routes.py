@@ -7,7 +7,6 @@ from .modules.model.lstm_net_keras import KerasLstmNet
 from flask import render_template, request
 from flask import Response
 import json
-from sklearn.model_selection import train_test_split
 
 from .config import set_conf
 from .model import set_model
@@ -41,8 +40,6 @@ def index():
             # app.model = PytorchLstmNet()
             set_model(app, categories, vocabulary, zero_marker)
         except Exception as e:
-            # jsdata = [str(e)]
-            # status = 404
             raise e
 
         data = {

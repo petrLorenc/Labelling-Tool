@@ -24,7 +24,7 @@ class PytorchLstmNet(AbstractModel):
         hidden_dim = app.hidden_dim
         use_gpu = app.use_gpu
 
-        mapping, embedding_data = ModelUtils.load_glove(embedding_path)
+        mapping, embedding_data = ModelUtils.load_glove_mapping(embedding_path)
 
         # addind OOV words with random embeddings (maybe zeros would be more convenient)
         for word in vocabulary:
