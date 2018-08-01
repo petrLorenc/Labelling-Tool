@@ -48,4 +48,6 @@ After labelling some data you can retrain your model (it does not save a model).
 
 ## Todos
 
-  * Hard-written OOV vocabulary (Repair in Keras model)
+  * Loading configuration from JSON
+  * Modular architecture
+  * Research for better models
