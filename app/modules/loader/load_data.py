@@ -107,4 +107,12 @@ class LoadData:
                     signs.append(sign)
                     tags.append(tag)
 
-        return np.asarray(sents), np.asanyarray(signs), np.asarray(labels)
+        return np.asarray(sents), np.asarray(labels)
+
+    @staticmethod
+    def load_vocabulary(path_to_vocabulary):
+        return [word.strip() for word in open(path_to_vocabulary, "r").readlines() if len(word) >= 1]
+
+    @staticmethod
+    def load_categories(path_to_categories):
+        return [category.split("\t") for category in open(path_to_categories, "r").readlines() if len(category) > 3]

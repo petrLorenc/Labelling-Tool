@@ -13,13 +13,10 @@ from .model import set_model
 
 set_conf(app)
 
-categories = [category.split("\t") for category in open(app.path_to_categories, "r").readlines() if
-              len(category) > 2]
-vocabulary = [word.strip() for word in open(app.path_to_vocabulary, "r").readlines() if len(word) >= 1]
-
 
 @app.route("/", methods=['GET', 'POST'])
 def index():
+    categories = LoadData.load_categories(app.path_to_categories)
     if request.method == 'POST':
         jsdata = json.loads(request.data)
         print(jsdata)
@@ -36,9 +33,10 @@ def index():
             return render_template('data.html', categories=categories)
 
         try:
-            app.model = KerasLstmNet()
-            # app.model = PytorchLstmNet()
-            set_model(app, categories, vocabulary, zero_marker)
+            # app.model = KerasLstmNet(app)
+            app.model = PytorchLstmNet(app)
+            print("tada")
+            set_model(app, zero_marker)
         except Exception as e:
             raise e
 
@@ -61,23 +59,23 @@ def validate():
         print(jsdata)
         if "retrain" == jsdata[0]:
             print("Training.")
-            X, _, y = LoadData.load_data_and_labels(jsdata[2] if jsdata[2] != "" else app.path_to_manually_labeled_data)
+            X, y = LoadData.load_data_and_labels(jsdata[2] if jsdata[2] != "" else app.path_to_manually_labeled_data)
             epochs, train_loss, train_acc, test_acc = app.model.train(X, y, epochs=jsdata[1] if jsdata[1] > 0
                                                                                              else app.train_epoch,
                                                                       batch_size=app.batch_size)
             jsdata = {"epochs": epochs, "train_loss": train_loss, "train_acc": train_acc, "test_acc": test_acc}
         elif "only_test" == jsdata[0]:
-            X_test, _, y_test = LoadData.load_data_and_labels(app.path_to_manually_labeled_data_testset)
+            X_test, y_test = LoadData.load_data_and_labels(app.path_to_manually_labeled_data_testset)
             report = app.model.test(X_test, y_test)
             print(report)
             jsdata = report
         elif "save_model" == jsdata[0]:
             app.path_to_saved_model = jsdata[1]
-            app.model.save_file(path=app.path_to_saved_model)
+            app.model.save_model(path=app.path_to_saved_model)
             jsdata = ["Model {} saved".format(app.path_to_saved_model)]
         elif "load_model" == jsdata[0]:
             app.path_to_saved_model = jsdata[1]
-            app.model.load_file(path=app.path_to_saved_model)
+            app.model.load_model(path=app.path_to_saved_model)
             jsdata = ["Model {} loaded".format(app.path_to_saved_model)]
         else:
             app.saving_data.add_item_to_file(jsdata)
@@ -100,5 +98,5 @@ def validate():
         app.current_sentence = app.model.predict(app.current_sentence)
 
     return render_template('index.html', sentence_list=app.current_sentence,
-                           sentence_json=json.dumps(app.current_sentence), categories=categories,
+                           sentence_json=json.dumps(app.current_sentence), categories=app.model.categories,
                            batch_processed=app.process_in_batch, batch_size=app.batch_size)

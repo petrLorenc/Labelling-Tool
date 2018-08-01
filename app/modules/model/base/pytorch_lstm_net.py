@@ -11,7 +11,7 @@ class PytorchLstmNetModel(nn.Module):
         Pytorch LSTM neural network (not bidirectional), last layer is projected with fully connected neural netowork
     '''
 
-    def __init__(self, tag_to_class, mapping, embedding_data, hidden_dim, use_gpu):
+    def __init__(self, tag2idx, word2emb_idx, embedding_data, hidden_dim, use_gpu):
         super(PytorchLstmNetModel, self).__init__()
 
         self.use_gpu = use_gpu and torch.cuda.is_available()
@@ -20,11 +20,11 @@ class PytorchLstmNetModel(nn.Module):
         else:
             self.device = torch.device('cpu')
 
-        self.tag_to_class = tag_to_class
-        self.class_to_tag = {v: k for k, v in tag_to_class.items()}
+        self.tag2idx = tag2idx
+        self.idx2tag = {v: k for k, v in tag2idx.items()}
 
         self.hidden_dim = hidden_dim
-        self.mapping, self.embedding_data = mapping, embedding_data
+        self.word2emb_idx, self.embedding_data = word2emb_idx, embedding_data
 
         if self.use_gpu:
             self.embedding_data = torch.from_numpy(self.embedding_data).float().to('cuda')
@@ -37,7 +37,7 @@ class PytorchLstmNetModel(nn.Module):
 
             self.lstm = nn.LSTM(self.embedding_dim, hidden_dim).to('cuda')
 
-            self.fc = nn.Linear(hidden_dim, len(self.tag_to_class)).to('cuda')
+            self.fc = nn.Linear(hidden_dim, len(self.tag2idx)).to('cuda')
 
         else:
             self.embedding_data = torch.from_numpy(self.embedding_data).float()
@@ -50,30 +50,30 @@ class PytorchLstmNetModel(nn.Module):
 
             self.lstm = nn.LSTM(self.embedding_dim, hidden_dim)
 
-            self.fc = nn.Linear(hidden_dim, len(self.tag_to_class))
+            self.fc = nn.Linear(hidden_dim, len(self.tag2idx))
 
         self.hidden = self.init_hidden()
 
     def prepare_sentence(self, sentences, batch=False):
         if batch:
-            idx = [self.mapping[w] if w in self.mapping else self.mapping["UNK"] for example in sentences for w in example]
+            idx = [self.word2emb_idx[w] if w in self.word2emb_idx else self.word2emb_idx["UNK"] for example in sentences for w in example]
         else:
-            idx = [self.mapping[w] if w in self.mapping else self.mapping["UNK"] for w in sentences]
+            idx = [self.word2emb_idx[w] if w in self.word2emb_idx else self.word2emb_idx["UNK"] for w in sentences]
 
         return torch.tensor(idx, dtype=torch.long, device=self.device)
 
     def prepare_targets(self, tags, batch=False):
         if batch:
-            idx = [self.tag_to_class[t] for example in tags for t in example]
+            idx = [self.tag2idx[t] for example in tags for t in example]
         else:
-            idx = [self.tag_to_class[t] for t in tags]
+            idx = [self.tag2idx[t] for t in tags]
         return torch.tensor(idx, dtype=torch.long, device=self.device)
 
     def return_class_from_target(self, target, batch=False):
         if batch:
-            classes = [self.class_to_tag[t] for example in target for t in example]
+            classes = [self.idx2tag[t] for example in target for t in example]
         else:
-            classes = [self.class_to_tag[t] for t in target]
+            classes = [self.idx2tag[t] for t in target]
         return classes
 
     def init_hidden(self):

@@ -1,5 +1,6 @@
 from .base.abstract_model import AbstractModel
 from ..loader.model_utils import ModelUtils
+from ..loader.load_data import LoadData
 from .base.pytorch_lstm_net import PytorchLstmNetModel
 
 import numpy as np
@@ -15,50 +16,82 @@ import torch.optim as optim
 
 class PytorchLstmNet(AbstractModel):
 
-    def load(self, app, classes, vocabulary, zero_marker):
+    def __init__(self, app):
+        super().__init__()
+        self.optimizer = None
+        self.loss_function = None
+        self.embedding_matrix = None
+        self.word2emb_idx = None
 
         embedding_path = app.path_to_embeddings
         embedding_dim = app.embedding_dim
+        manually_labelled = app.path_to_manually_labeled_data
+        unlabeled_data = app.path_to_unlabeled_data
         use_saved_if_found = app.using_saved_model
         path_to_saved_model = app.path_to_saved_model
         hidden_dim = app.hidden_dim
         use_gpu = app.use_gpu
 
-        mapping, embedding_data = ModelUtils.load_glove_mapping(embedding_path)
+        self.load_workflow = [
+            self.load_vocabulary,
+            self.load_categories,
+            # self.update_vocabulary,
+            self.define_embeddings,
+            self.define_mapping,
+            self.define_model,
+            self.use_saved_model,
+            self.train,
+        ]
+
+        self.load_param = [
+            [app.path_to_vocabulary],
+            [app.path_to_categories],
+            # [app.path_to_vocabulary, manually_labelled, unlabeled_data, use_saved_if_found],
+            [embedding_dim, embedding_path],
+            [],
+            [hidden_dim, path_to_saved_model],
+            [use_saved_if_found, path_to_saved_model],
+            [*LoadData.load_data_and_labels(manually_labelled), 10, 64],
+        ]
+
+    def define_embeddings(self, embedding_dim, embedding_path):
+        self.word2emb_idx, self.embedding_matrix = ModelUtils.load_glove_mapping(embedding_path)
 
         # addind OOV words with random embeddings (maybe zeros would be more convenient)
-        for word in vocabulary:
-            if word not in mapping:
-                mapping[word] = len(mapping)  # last index
-                embedding_data.append(np.zeros(embedding_dim))
+        for word in self.vocabulary:
+            if word not in self.word2emb_idx:
+                self.word2emb_idx[word] = len(self.word2emb_idx)  # last index
+                self.embedding_matrix.append(np.zeros(embedding_dim))
 
+    def define_mapping(self):
         # mapping for tags
         tag_to_class = {}
         index = 0
-        for category in ModelUtils.add_categories_for_model(classes):
+        for category in ModelUtils.add_categories_for_model(self.categories):
             if category not in tag_to_class:
                 tag_to_class[category] = index
                 index += 1
 
-        model = PytorchLstmNetModel(tag_to_class, mapping, np.array(embedding_data), hidden_dim=hidden_dim, use_gpu=use_gpu)
-        # This criterion combines nn.LogSoftmax() and nn.NLLLoss() in one single class.
-        # It is useful when training a classification problem with C classes.
-        # If provided, the optional argument weight should be a 1D Tensor assigning weight to each of the classes.
-        # This is particularly useful when you have an unbalanced training set.
-        loss_function = nn.CrossEntropyLoss()
-        optimizer = optim.SGD(model.parameters(), lr=0.1)
+        self.max_len = 20
+        self.word2idx = {w: i for i, w in enumerate(self.vocabulary)}
+        self.idx2word = {v: k for k, v in self.word2idx.items()}
+        self.tag2idx = tag_to_class
+        self.idx2tag = {v: k for k, v in self.tag2idx.items()}
 
+    def define_model(self, hidden_dim, use_gpu):
+        self.model = PytorchLstmNetModel(self.tag2idx, self.word2emb_idx, np.array(self.embedding_matrix),
+                                         hidden_dim=hidden_dim, use_gpu=use_gpu)
+        self.loss_function = nn.CrossEntropyLoss()
+        self.optimizer = optim.SGD(self.model.parameters(), lr=0.1)
+
+    def use_saved_model(self, use_saved_if_found, path_to_saved_model):
         if use_saved_if_found:
             my_file = Path(path_to_saved_model)
             if my_file.is_file():
-                self.load_file(path_to_saved_model)
+                self.load_model(path_to_saved_model)
 
-        self.model = model
-        self.loss_function = loss_function
-        self.optimizer = optimizer
-
-    def train(self, X, y, epochs=100, batch_size=32):
-        X_train, y_train, X_test, y_test = train_test_split(X, y, test_size=0.1)
+    def train(self, X, y, epochs=8, batch_size=32):
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1)
         losses = []
         key_errors = 0
         for epoch in range(epochs):
@@ -165,7 +198,7 @@ class PytorchLstmNet(AbstractModel):
 
             return report_data
 
-    def save_file(self, path):
+    def save_model(self, path):
         print("=> saving checkpoint '{}'".format(path))
         state = {
             'state_dict': self.model.state_dict(),
@@ -174,7 +207,7 @@ class PytorchLstmNet(AbstractModel):
         torch.save(state, path)
         print("=> saved checkpoint '{}'".format(path))
 
-    def load_file(self, path):
+    def load_model(self, path):
         print("=> loading checkpoint '{}'".format(path))
         checkpoint = torch.load(path)
         self.model.load_state_dict(checkpoint['state_dict'])

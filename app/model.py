@@ -2,15 +2,8 @@ from .modules.loader.load_data import LoadData
 from .modules.procesor.saving_data import SavingData
 
 
-def set_model(app, categories, vocabulary, zero_marker):
-    app.model.load(app, categories, vocabulary, zero_marker)
-    # app.model, app.loss_function, app.optimizer = ModelInterface.create_model(embedding_path=app.path_to_embeddings,
-    #                                                                           vocabulary=vocabulary,
-    #                                                                           classes=categories,
-    #                                                                           use_saved_if_found=app.using_saved_model,
-    #                                                                           path_to_saved_model=app.path_to_saved_model,
-    #                                                                           hidden_dim=app.hidden_dim,
-    #                                                                           use_gpu=app.use_gpu)
+def set_model(app, zero_marker):
+    app.model.load()
 
     app.path_to_marker = app.path_to_marker + app.path_to_unlabeled_data.split("/")[-1].split(".")[0] + "_marker.txt"
 

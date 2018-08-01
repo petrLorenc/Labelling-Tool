@@ -1,4 +1,11 @@
+import json
+
+
 def set_conf(app):
+    with open("./app/configuration.json", 'r') as json_data_file:
+        data = json.load(json_data_file)
+    print(data)
+
     app.path_to_embeddings = "./app/static/data/models/glove.6B.50d.txt"
     app.path_to_saved_model = "./app/static/data/models/actual_model.pth.tar"
     app.path_to_vocabulary = "./app/static/data/vocabulary.txt"
